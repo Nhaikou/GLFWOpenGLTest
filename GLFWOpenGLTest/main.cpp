@@ -12,7 +12,7 @@
 #include <vector>
 
 // Window dimensions
-const GLuint WIDTH = 800, HEIGHT = 600;
+const GLuint screenWidth = 800, screenHeight = 600;
 // Functions
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
@@ -28,7 +28,7 @@ int main()
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	// Create a GLFWwindows object that we can use for GLFW's funtions
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "OpenGL Tutorial", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "OpenGL Tutorial", nullptr, nullptr);
 	if (window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -53,7 +53,11 @@ int main()
 		return -1;
 	}
 
-	glViewport(0, 0, WIDTH, HEIGHT);
+	// Define the viewport dimensions
+	glViewport(0, 0, screenWidth, screenHeight);
+
+	//Setup OpenGL options
+	glEnable(GL_DEPTH_TEST);
 
 	// Build and compile our shader program
 	Shader ourShader("VertexShader.txt", "FragmentShader.txt");
@@ -61,11 +65,47 @@ int main()
 
 	// Set up vertex data (and buffer(s)) and attribute pointers
 	GLfloat vertices[] = {
-		//Positions				// Colors				//Texture Coords
-		0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f,		1.0f, 1.0f,	// Top Right
-		0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f,	// Bottom Right
-		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f,	// Bottom Left
-		-0.5f, 0.5f, 0.0f,		1.0f, 1.0f, 0.0f,		0.0f, 1.0f	// Top Left 
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+
+		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f
 	};
 	GLuint indices[] = {
 		0, 1, 3,	// First Triangle
@@ -87,15 +127,15 @@ int main()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
-	// Color Attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
+	//// Color Attribute
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	//glEnableVertexAttribArray(1);
 
 	// TexCoord attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2);
 
 	//glBindBuffer(GL_ARRAY_BUFFER, 0); // Note that this is allowed, the call to glVertexAttribPointer registered VBO as the currently bound vertex buffer object so afterwards we can safely unbind
@@ -150,15 +190,19 @@ int main()
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
+	//glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
+	//glm::mat4 proj = glm::perspective(45.0f, (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
+
 	// Game loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
 
-		// Rendering command here
+		// Render
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Load shaders
 		ourShader.Use();
@@ -172,33 +216,31 @@ int main()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
+		
 
-		// Create transformations
-		glm::mat4 trans;
-		trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-		trans = glm::rotate(trans, (GLfloat)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.0, 0.0, 1.0));
-		//trans = glm::scale(trans, (GLfloat)glfwGetTime() + glm::vec3(0.5, 0.5, 0.5));
+		// Transformations
+		glm::mat4 model;
+		glm::mat4 view;
+		glm::mat4 projection;
+		model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		projection = glm::perspective(45.0f, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
+		model = glm::rotate(model, (GLfloat)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-		// Rotating the box
-		GLuint transformLoc = glGetUniformLocation(ourShader.Program, "transform");
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-
+		// Get their uniform locations
+		GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
+		GLint viewLoc = glGetUniformLocation(ourShader.Program, "view");
+		GLint projectionLoc = glGetUniformLocation(ourShader.Program, "projection");
+		
+		// Passing them to shaders
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		
 		// Draw box
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-		// Second transformations
-		trans = glm::mat4();
-		trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
-		trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-		trans = glm::rotate(trans, (GLfloat)glfwGetTime() * glm::radians(-50.f), glm::vec3(0.0, 0.0, 1.0));
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-
-		// Draw second box
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		
 		// Swap the screen buffers
