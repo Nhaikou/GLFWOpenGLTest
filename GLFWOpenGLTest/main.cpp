@@ -173,19 +173,32 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture2);
 		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
 
-		//glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+		// Create transformations
 		glm::mat4 trans;
+		trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
 		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
 		trans = glm::rotate(trans, (GLfloat)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.0, 0.0, 1.0));
-		//trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+		//trans = glm::scale(trans, (GLfloat)glfwGetTime() + glm::vec3(0.5, 0.5, 0.5));
 
 		// Rotating the box
 		GLuint transformLoc = glGetUniformLocation(ourShader.Program, "transform");
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
-		// Draw rectangle
+		// Draw box
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		// Second transformations
+		trans = glm::mat4();
+		trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+		trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+		trans = glm::rotate(trans, (GLfloat)glfwGetTime() * glm::radians(-50.f), glm::vec3(0.0, 0.0, 1.0));
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+		// Draw second box
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 		glBindVertexArray(0);
 		
 		// Swap the screen buffers
