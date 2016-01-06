@@ -18,10 +18,11 @@ const GLuint screenWidth = 800, screenHeight = 600;
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void do_movement();
 
-bool keys[1024];
+// Camera
 glm::vec3 cameraPos		= glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront	= glm::vec3(0.0f, 0.0f,-1.0f);
 glm::vec3 cameraUp		= glm::vec3(0.0f, 1.0f, 0.0f);
+bool keys[1024];
 
 // Deltatime
 GLfloat deltaTime = 0.0f;
@@ -228,7 +229,6 @@ int main()
 
 		// Render
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Load shaders
@@ -251,7 +251,7 @@ int main()
 
 		// Projection
 		glm::mat4 projection;
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 		projection = glm::perspective(45.0f, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
 		//model = glm::rotate(model, (GLfloat)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
@@ -301,7 +301,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
-	if (key >=  0 && key < 1024)
+	else if (key >=  0 && key < 1024)
 	{
 		if (action == GLFW_PRESS)
 		{
@@ -319,7 +319,7 @@ void do_movement()
 {
 	// Camera controls
 	GLfloat cameraSpeed = 5.0f * deltaTime;
-	if (keys[GLFW_KEY_W]);
+	if (keys[GLFW_KEY_W])
 	{
 		cameraPos += cameraSpeed * cameraFront;
 	}
