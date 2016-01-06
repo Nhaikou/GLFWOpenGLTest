@@ -20,7 +20,7 @@
 #include "Camera.h"
 
 // Window dimensions
-const GLuint screenWidth = 800, screenHeight = 600;
+const GLuint screenWidth = 1280, screenHeight = 720;
 // Functions
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -28,9 +28,9 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void do_movement();
 
 // Camera
+GLfloat lastX = screenWidth / 2.0, lastY = screenHeight / 2.0;
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 bool keys[1024];
-GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
 
 // Deltatime
@@ -47,6 +47,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	// Create a GLFWwindows object that we can use for GLFW's funtions
 	GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "OpenGL Tutorial", nullptr, nullptr);
@@ -265,8 +266,7 @@ int main()
 
 		// Projection
 		glm::mat4 projection;
-		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-		projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(camera.Zoom), (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
 		//model = glm::rotate(model, (GLfloat)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
 		// Get their uniform locations
@@ -332,7 +332,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void do_movement()
 {
 	// Camera controls
-	GLfloat cameraSpeed = 5.0f * deltaTime;
+	//GLfloat cameraSpeed = 5.0f * deltaTime;
 	if (keys[GLFW_KEY_W])
 	{
 		camera.ProcessKeyboard(FORWARD, deltaTime);
