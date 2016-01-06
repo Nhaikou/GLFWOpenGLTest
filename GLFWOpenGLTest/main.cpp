@@ -1,28 +1,37 @@
+// VS 2015 includes
+#include <iostream>
+#include <vector>
+#include <cmath>
 // GLEW (NOTICE: GLEW MUST BE ALWAYS INCLUDED BEFORE GLFW)
 #define GLEW_STATIC
 #include <GL\glew.h>
 // GLFW
 #include <GLFW\glfw3.h>
+// GLM Mathematics
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
-#include <iostream>
+
+// 3rdparty
 #include "lodepng.h"
+
+// Project includes
 #include "Shader.h"
-#include <vector>
-#include <cmath>
+#include "Camera.h"
 
 // Window dimensions
 const GLuint screenWidth = 800, screenHeight = 600;
 // Functions
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void do_movement();
 
 // Camera
-glm::vec3 cameraPos		= glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront	= glm::vec3(0.0f, 0.0f,-1.0f);
-glm::vec3 cameraUp		= glm::vec3(0.0f, 1.0f, 0.0f);
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 bool keys[1024];
+GLfloat lastX = 400, lastY = 300;
+bool firstMouse = true;
 
 // Deltatime
 GLfloat deltaTime = 0.0f;
@@ -51,7 +60,12 @@ int main()
 
 	// Set the required callback functions
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 	
+	// GLFW Options
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 	glewExperimental = GL_TRUE;
 	
@@ -228,7 +242,7 @@ int main()
 		do_movement();
 
 		// Render
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.5f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Load shaders
@@ -247,12 +261,12 @@ int main()
 
 		// Camera/View Transformations
 		glm::mat4 view;
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		view = camera.GetViewMatrix();
 
 		// Projection
 		glm::mat4 projection;
 		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-		projection = glm::perspective(45.0f, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
+		projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
 		//model = glm::rotate(model, (GLfloat)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
 		// Get their uniform locations
@@ -321,18 +335,40 @@ void do_movement()
 	GLfloat cameraSpeed = 5.0f * deltaTime;
 	if (keys[GLFW_KEY_W])
 	{
-		cameraPos += cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(FORWARD, deltaTime);
 	}
 	if (keys[GLFW_KEY_S])
 	{
-		cameraPos -= cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
 	}
 	if (keys[GLFW_KEY_A])
 	{
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.ProcessKeyboard(LEFT, deltaTime);
 	}
 	if (keys[GLFW_KEY_D])
 	{
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.ProcessKeyboard(RIGHT, deltaTime);
 	}
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	GLfloat xoffset = xpos - lastX;
+	GLfloat yoffset = lastY - ypos;		// Reversed since y-coordinates go from bottom to left
+	lastX = xpos;
+	lastY = ypos;
+
+	camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	camera.ProcessMouseScroll(yoffset);
 }
