@@ -78,6 +78,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="FragmentShader.txt" />
+    <Text Include="LampFragmenShader.txt" />
+    <Text Include="LampVertexShader.txt" />
     <Text Include="VertexShader.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
