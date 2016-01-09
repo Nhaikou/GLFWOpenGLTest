@@ -33,8 +33,8 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 bool keys[1024];
 bool firstMouse = true;
 
-// Light attributes
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+// Position of the light/lamp
+glm::vec3 lightPos(0.2f, 1.0f, 1.0f);
 
 // Deltatime
 GLfloat deltaTime = 0.0f;
@@ -326,9 +326,11 @@ int main()
 		GLint objectColorLoc = glGetUniformLocation(ourShader.Program, "objectColor");
 		GLint lightColorLoc = glGetUniformLocation(ourShader.Program, "lightColor");
 		GLint lightPosLoc = glGetUniformLocation(ourShader.Program, "lightPos");
+		GLint viewPosLoc = glGetUniformLocation(ourShader.Program, "viewPos");
 		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
 		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
 		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+		glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
 
 		// Camera/View Transformations
 		glm::mat4 view;
@@ -372,6 +374,10 @@ int main()
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
+
+		lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+		lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
+		lightPos.z = lightPos.x - lightPos.y;
 
 		/*for (GLuint i = 0; i < 10; i++)
 		{
