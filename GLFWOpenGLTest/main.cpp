@@ -34,7 +34,7 @@ bool keys[1024];
 bool firstMouse = true;
 
 // Position of the light/lamp
-glm::vec3 lightPos(0.2f, 1.0f, 1.0f);
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 // Deltatime
 GLfloat deltaTime = 0.0f;
@@ -323,14 +323,43 @@ int main()
 		
 
 		// Use cooresponding shader when setting uniforms/drawing objects
-		GLint objectColorLoc = glGetUniformLocation(ourShader.Program, "objectColor");
-		GLint lightColorLoc = glGetUniformLocation(ourShader.Program, "lightColor");
-		GLint lightPosLoc = glGetUniformLocation(ourShader.Program, "lightPos");
+		GLint lightPosLoc = glGetUniformLocation(ourShader.Program, "light.position");
 		GLint viewPosLoc = glGetUniformLocation(ourShader.Program, "viewPos");
-		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
 		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
 		glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
+
+		// Object materials
+		GLint matAmbientLoc = glGetUniformLocation(ourShader.Program, "material.ambient");
+		GLint matDiffuseLoc = glGetUniformLocation(ourShader.Program, "material.diffuse");
+		GLint matSpecularLoc = glGetUniformLocation(ourShader.Program, "material.specular");
+		GLint matShineLoc = glGetUniformLocation(ourShader.Program, "material.shininess");
+
+		glUniform3f(matAmbientLoc, 1.0f, 0.5f, 0.31f);
+		glUniform3f(matDiffuseLoc, 1.0f, 0.5f, 0.31f);
+		glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
+		glUniform1f(matShineLoc, 32.0f);
+		
+		// Light materials
+		GLint lightAmbientLoc = glGetUniformLocation(ourShader.Program, "light.ambient");
+		GLint lightDiffuseLoc = glGetUniformLocation(ourShader.Program, "light.diffuse");
+		GLint lightSpecularLoc = glGetUniformLocation(ourShader.Program, "light.specular");
+		
+		glm::vec3 lightColor;
+		lightColor.x = sin(glfwGetTime() * 2.0f);
+		lightColor.y = sin(glfwGetTime() * 0.7f);
+		lightColor.z = sin(glfwGetTime() * 1.3f);
+
+		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+
+		glUniform3f(glGetUniformLocation(ourShader.Program, "light.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(glGetUniformLocation(ourShader.Program, "light.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		glUniform3f(glGetUniformLocation(ourShader.Program, "light.specular"), 1.0f, 1.0f, 1.0f);
+
+		// Light color
+		/*glUniform3f(lightAmbientLoc, 0.2f, 0.2f, 0.2f);
+		glUniform3f(lightDiffuseLoc, 0.5, 0.5f, 0.5f);
+		glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);*/
 
 		// Camera/View Transformations
 		glm::mat4 view;
@@ -353,6 +382,7 @@ int main()
 		// Draw box
 		glBindVertexArray(VAO);
 		glm::mat4 model;
+		model = glm::rotate(model, (GLfloat)glfwGetTime() + glm::radians(50.0f), glm::vec3(1.0f, 0.3f, 05.f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
@@ -375,9 +405,11 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
+		// Lamp movement
 		lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
 		lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
 		lightPos.z = lightPos.x - lightPos.y;
+
 
 		/*for (GLuint i = 0; i < 10; i++)
 		{
