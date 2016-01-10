@@ -327,32 +327,29 @@ int main()
 		glUniform1i(glGetUniformLocation(ourShader.Program, "material.specular"), 1);
 		
 
-		// Use cooresponding shader when setting uniforms/drawing objects
+		// Light
 		GLint lightPosLoc = glGetUniformLocation(ourShader.Program, "light.position");
+		GLint lighSpotdirLoc =  glGetUniformLocation(ourShader.Program, "light.direction");
+		GLint lightSpotCutOffLoc = glGetUniformLocation(ourShader.Program, "light.cutOff");
+		GLint lightSpotOuterCutOffLoc = glGetUniformLocation(ourShader.Program, "light.outerCutOff");
 		GLint viewPosLoc = glGetUniformLocation(ourShader.Program, "viewPos");
-		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+
+		glUniform3f(lightPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
+		glUniform3f(lighSpotdirLoc, camera.Front.x, camera.Front.y, camera.Front.z);
+		glUniform1f(lightSpotCutOffLoc, glm::cos(glm::radians(15.0f)));
+		glUniform1f(lightSpotOuterCutOffLoc, glm::cos(glm::radians(20.0f)));
 		glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
-
-		// Object materials
-		//GLint matAmbientLoc = glGetUniformLocation(ourShader.Program, "material.ambient");
-		//GLint matDiffuseLoc = glGetUniformLocation(ourShader.Program, "material.diffuse");
-		GLint matSpecularLoc = glGetUniformLocation(ourShader.Program, "material.specular");
-		GLint matShineLoc = glGetUniformLocation(ourShader.Program, "material.shininess");
-
-		//glUniform3f(matAmbientLoc, 1.0f, 0.5f, 0.31f);
-		//glUniform3f(matDiffuseLoc, 1.0f, 0.5f, 0.31f);
-		//glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
-		glUniform1f(matShineLoc, 32.0f);
 		
 		// Light materials
-		glUniform3f(glGetUniformLocation(ourShader.Program, "light.ambient"), 0.2f, 0.2f, 0.2f);
-		glUniform3f(glGetUniformLocation(ourShader.Program, "light.diffuse"), 0.5f, 0.5f, 0.5f);
+		glUniform3f(glGetUniformLocation(ourShader.Program, "light.ambient"), 0.1f, 0.1f, 0.1f);
+		glUniform3f(glGetUniformLocation(ourShader.Program, "light.diffuse"), 0.8f, 0.8f, 0.8f);
 		glUniform3f(glGetUniformLocation(ourShader.Program, "light.specular"), 1.0f, 1.0f, 1.0f);
+		glUniform1f(glGetUniformLocation(ourShader.Program, "light.constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(ourShader.Program, "light.linear"), 0.09);
+		glUniform1f(glGetUniformLocation(ourShader.Program, "light.quadratic"), 0.032);
+		glUniform1f(glGetUniformLocation(ourShader.Program, "material.shininess"), 32.0f);
 
-		// Light color
-		/*glUniform3f(lightAmbientLoc, 0.2f, 0.2f, 0.2f);
-		glUniform3f(lightDiffuseLoc, 0.5, 0.5f, 0.5f);
-		glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);*/
+
 
 		// Camera/View Transformations
 		glm::mat4 view;
@@ -378,7 +375,17 @@ int main()
 		//model = glm::rotate(model, (GLfloat)glfwGetTime() + glm::radians(50.0f), glm::vec3(1.0f, 0.3f, 05.f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
+		//glBindVertexArray(0);
+
+		for (GLuint i = 0; i < 10; i++)
+		{
+			model = glm::mat4();
+			model = glm::translate(model, cubePositions[i]);
+			GLfloat angle = glm::radians(20.0f) * i;
+			model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		// Lamp
 		lampShader.Use();
@@ -402,17 +409,6 @@ int main()
 		//lightPos.x = 1.0f + sin(glfwGetTime()) * 1.0f;
 		//lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
 		//lightPos.z = lightPos.x - lightPos.y;
-
-
-		/*for (GLuint i = 0; i < 10; i++)
-		{
-			glm::mat4 model;
-			model = glm::translate(model, cubePositions[i]);
-			GLfloat angle = glm::radians(20.0f) * i;
-			model = glm::rotate(model, (GLfloat)glfwGetTime() + angle, glm::vec3(1.0f, 0.3f, 0.5f));
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}*/
 		
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
