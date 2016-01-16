@@ -200,6 +200,13 @@ int main()
 		-0.5f, 0.5f, 0.5f,
 		-0.5f, 0.5f, -0.5f
 	};
+	glm::vec3 pointLightPositions[] =
+	{
+		glm::vec3( 0.7f, 0.2f, 2.0f),
+		glm::vec3( 2.3f,-3.3f,-4.0f),
+		glm::vec3(-4.0f, 2.0f,-12.0f),
+		glm::vec3( 0.0f, 0.0f,-3.0f)
+	};
 
 	GLuint VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
@@ -326,19 +333,16 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, specularMap);
 		glUniform1i(glGetUniformLocation(ourShader.Program, "material.specular"), 1);
 		
+		//View position
+		glUniform3f(glGetUniformLocation(ourShader.Program, "viewPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+		// Material properties
+		glUniform1f(glGetUniformLocation(ourShader.Program, "material.shininess"), 32.0f);
 
-		// Light
-		GLint lightPosLoc = glGetUniformLocation(ourShader.Program, "light.position");
-		GLint lighSpotdirLoc =  glGetUniformLocation(ourShader.Program, "light.direction");
-		GLint lightSpotCutOffLoc = glGetUniformLocation(ourShader.Program, "light.cutOff");
-		GLint lightSpotOuterCutOffLoc = glGetUniformLocation(ourShader.Program, "light.outerCutOff");
-		GLint viewPosLoc = glGetUniformLocation(ourShader.Program, "viewPos");
-
-		glUniform3f(lightPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
-		glUniform3f(lighSpotdirLoc, camera.Front.x, camera.Front.y, camera.Front.z);
-		glUniform1f(lightSpotCutOffLoc, glm::cos(glm::radians(15.0f)));
-		glUniform1f(lightSpotOuterCutOffLoc, glm::cos(glm::radians(20.0f)));
-		glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
+		// Directional light
+		glUniform3f(glGetUniformLocation(ourShader.Program, "dirLight.direction"), -0.2f, -1.0f, -0.3f);
+		glUniform3f(glGetUniformLocation(ourShader.Program, "dirLight.ambient"), 0.05f, 0.05f, 0.05f);
+		glUniform3f(glGetUniformLocation(ourShader.Program, "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
+		glUniform3f(glGetUniformLocation(ourShader.Program, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
 		
 		// Light materials
 		glUniform3f(glGetUniformLocation(ourShader.Program, "light.ambient"), 0.1f, 0.1f, 0.1f);
@@ -349,7 +353,30 @@ int main()
 		glUniform1f(glGetUniformLocation(ourShader.Program, "light.quadratic"), 0.032);
 		glUniform1f(glGetUniformLocation(ourShader.Program, "material.shininess"), 32.0f);
 
+		// 4 point lights
+		for (GLuint i = 0; i < 4; i++)
+		{
+			std::string number = std::to_string(i);
 
+			glUniform3f(glGetUniformLocation(ourShader.Program, ("pointLights[" + number + "].position").c_str()), pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
+			glUniform3f(glGetUniformLocation(ourShader.Program, ("pointLights[" + number + "].ambient").c_str()), 0.05f, 0.05f, 0.05f);
+			glUniform3f(glGetUniformLocation(ourShader.Program, ("pointLights[" + number + "].diffuse").c_str()), 0.8f, 0.8f, 0.8f);
+			glUniform3f(glGetUniformLocation(ourShader.Program, ("pointLights[" + number + "].specular").c_str()), 1.0f, 1.0f, 1.0f);
+			glUniform1f(glGetUniformLocation(ourShader.Program, ("pointLights[" + number + "].constant").c_str()), 1.0f);
+			glUniform1f(glGetUniformLocation(ourShader.Program, ("pointLights[" + number + "].linear").c_str()), 0.09f);
+			glUniform1f(glGetUniformLocation(ourShader.Program, ("pointLights[" + number + "].quadratic").c_str()), 0.032f);
+		}
+		// SpotLight
+		glUniform3f(glGetUniformLocation(ourShader.Program, "spotLight.position"), camera.Position.x, camera.Position.y, camera.Position.z);
+		glUniform3f(glGetUniformLocation(ourShader.Program, "spotLight.direction"), camera.Front.x, camera.Front.y, camera.Front.z);
+		glUniform3f(glGetUniformLocation(ourShader.Program, "spotLight.ambient"), 0.0f, 0.0f, 0.0f);
+		glUniform3f(glGetUniformLocation(ourShader.Program, "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
+		glUniform3f(glGetUniformLocation(ourShader.Program, "spotLight.specular"), 1.0f, 1.0f, 1.0f);
+		glUniform1f(glGetUniformLocation(ourShader.Program, "spotLight.constant"), 1.0f);
+		glUniform1f(glGetUniformLocation(ourShader.Program, "spotLight.linear"), 0.09);
+		glUniform1f(glGetUniformLocation(ourShader.Program, "spotLight.quadratic"), 0.032);
+		glUniform1f(glGetUniformLocation(ourShader.Program, "spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
+		glUniform1f(glGetUniformLocation(ourShader.Program, "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
 
 		// Camera/View Transformations
 		glm::mat4 view;
@@ -358,7 +385,6 @@ int main()
 		// Projection
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.Zoom), (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
-
 
 		// Get their uniform locations
 		GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
@@ -387,30 +413,25 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-		// Lamp
+		// Lamps
 		lampShader.Use();
 		modelLoc = glGetUniformLocation(lampShader.Program, "model");
 		viewLoc = glGetUniformLocation(lampShader.Program, "view");
 		projectionLoc = glGetUniformLocation(lampShader.Program, "projection");
-
+		// Matrices
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-		model = glm::mat4();
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f)); // Much smaller cube
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		//Drawing light object using light's vertex attributes
 		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-
-		// Lamp movement
-		//lightPos.x = 1.0f + sin(glfwGetTime()) * 1.0f;
-		//lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
-		//lightPos.z = lightPos.x - lightPos.y;
-		
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		for (GLuint i = 0; i < 4; i++)
+		{
+			model = glm::mat4();
+			model = glm::translate(model, pointLightPositions[i]);
+			model = glm::scale(model, glm::vec3(0.2f));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		glBindVertexArray(0);
 		
 		// Swap the screen buffers
