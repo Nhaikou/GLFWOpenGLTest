@@ -398,9 +398,8 @@ int main()
 		// Draw box
 		glBindVertexArray(VAO);
 		glm::mat4 model;
-		//model = glm::rotate(model, (GLfloat)glfwGetTime() + glm::radians(50.0f), glm::vec3(1.0f, 0.3f, 05.f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 		//glBindVertexArray(0);
 
 		for (GLuint i = 0; i < 10; i++)
@@ -408,7 +407,7 @@ int main()
 			model = glm::mat4();
 			model = glm::translate(model, cubePositions[i]);
 			GLfloat angle = glm::radians(20.0f) * i;
-			model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+			model = glm::rotate(model, (GLfloat)glfwGetTime() * angle, glm::vec3(1.0f, 0.3f, 0.5f));
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
