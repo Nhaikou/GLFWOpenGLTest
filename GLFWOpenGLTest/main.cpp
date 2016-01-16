@@ -157,6 +157,19 @@ int main()
 		glm::vec3(-1.3f, 1.0f, -1.5f)
 	};
 
+	glm::vec3 cubePositions2[] = {
+		glm::vec3(0.0f, 0.0f, -2.0f),
+		glm::vec3(0.0f, 1.0f, -4.0f),
+		glm::vec3(0.0f, 2.0f, -6.0f),
+		glm::vec3(0.0f, 3.0f, -8.0f),
+		glm::vec3(0.0f, 4.0f, -10.0f),
+		glm::vec3(0.0f, 5.0f, -12.0f),
+		glm::vec3(0.0f, 6.0f, -14.0f),
+		glm::vec3(0.0f, 7.0f, -16.0f),
+		glm::vec3(0.0f, 8.0f, -18.0f),
+		glm::vec3(0.0f, 9.0f, -20.0f)
+	};
+
 	GLfloat lightVertices[] = {
 		-0.5f, -0.5f, -0.5f,
 		0.5f, -0.5f, -0.5f,
@@ -206,6 +219,14 @@ int main()
 		glm::vec3( 2.3f,-3.3f,-4.0f),
 		glm::vec3(-4.0f, 2.0f,-12.0f),
 		glm::vec3( 0.0f, 0.0f,-3.0f)
+	};
+
+	glm::vec3 pointLightPositions2[] =
+	{
+		glm::vec3(0.5f, 0.5f, 2.0f),
+		glm::vec3(2.5f, 2.0f, -6.0f),
+		glm::vec3(-2.5f, 6.0f, -12.0f),
+		glm::vec3(0.0f, 0.0f, -3.0f)
 	};
 
 	GLuint VBO, VAO, EBO;
@@ -405,7 +426,7 @@ int main()
 		for (GLuint i = 0; i < 10; i++)
 		{
 			model = glm::mat4();
-			model = glm::translate(model, cubePositions[i]);
+			model = glm::translate(model, cubePositions2[i]);
 			GLfloat angle = glm::radians(20.0f) * i;
 			model = glm::rotate(model, (GLfloat)glfwGetTime() * angle, glm::vec3(1.0f, 0.3f, 0.5f));
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -426,7 +447,7 @@ int main()
 		for (GLuint i = 0; i < 4; i++)
 		{
 			model = glm::mat4();
-			model = glm::translate(model, pointLightPositions[i]);
+			model = glm::translate(model, pointLightPositions2[i]);
 			model = glm::scale(model, glm::vec3(0.2f));
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 36);
